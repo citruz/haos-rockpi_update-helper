@@ -12,7 +12,7 @@ function fetch_image_url() {
     local version=${1}
     local board=${2}
     local response
-    loacl url
+    local url
     
     response=$(curl -s -f "$RELEASES_URL")
     if [ $? -ne 0 ]; then
@@ -28,10 +28,13 @@ function fetch_image_url() {
         bashio::exit.nok "No suitable release found for board '${board}' and version '${version}'."
         exit 1
     fi
+
+    echo $url
 }
 
 function install_image() {
     local url="$1"
+    
     bashio::log "Installing from ${url}"
     rauc install "$url"
     if [ $? -eq 0 ]; then
@@ -56,8 +59,8 @@ bashio::log "Current board: $BOARD"
 bashio::log "Current OS version: $OS_VERSION"
 bashio::log "Addon version: $ADDON_VERSION"
 
-if [ "$OS_VERSION" == "$LATEST_VERSION" ] && [ "$ALLOW_REINSTALL" == false ]; then
-    bashio::log.notice "Already up-to-date with version $LATEST_VERSION. Change configuration option to allow reinstallation."
+if [ "$OS_VERSION" == "$ADDON_VERSION" ] && [ "$ALLOW_REINSTALL" == false ]; then
+    bashio::log.notice "Already up-to-date with version $ADDON_VERSION. Change configuration option to allow reinstallation."
     bashio::exit.ok
 fi
 
