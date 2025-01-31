@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bashio
 
-bashio::log.level "trace"
+bashio::log.level "debug"
 
 GITHUB_REPO="citruz/haos-rockpi"
 RELEASES_URL="https://api.github.com/repos/${GITHUB_REPO}/releases"
