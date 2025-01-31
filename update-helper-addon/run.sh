@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bashio
 
-set +e
+bashio::log.level "trace"
 
 GITHUB_REPO="citrux/hassos"
 RELEASES_URL="https://api.github.com/repos/${GITHUB_REPO}/releases"
@@ -13,9 +13,12 @@ function fetch_image_url() {
     local board=${2}
     local response
     local url
+
+    bashio::log.trace "${FUNCNAME[0]}" "$@"
     
     response=$(curl -s -f "$RELEASES_URL")
     if [ $? -ne 0 ]; then
+        bashio::log.debug "$resonse"
         bashio::exit.nok "Error fetching releases from ${RELEASES_URL}"
     fi
 
@@ -25,6 +28,7 @@ function fetch_image_url() {
         '.[] | .assets[] | select(.name | contains($filter) and endswith(".raucb")) | .browser_download_url')
 
     if [ -z "$url" ]; then
+        bashio::log.debug "$url"
         bashio::exit.nok "No suitable release found for board '${board}' and version '${version}'."
         exit 1
     fi
@@ -32,8 +36,12 @@ function fetch_image_url() {
     echo $url
 }
 
+# Install rauc bundle from url
+# Arguments: $1 url
 function install_image() {
-    local url="$1"
+    local url=$*
+
+    bashio::log.trace "${FUNCNAME[0]}" "$@"
     
     bashio::log "Installing from ${url}"
     rauc install "$url"
@@ -70,4 +78,5 @@ install_image $IMAGE_URL
 
 bashio::log "Rebooting now..."
 bashio::host.reboot
+bashio::addon.stop
 
