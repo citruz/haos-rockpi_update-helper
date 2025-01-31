@@ -12,5 +12,5 @@
   "ingress": "false",
   "stage": "experimental",
   "privileged": ["SYS_ADMIN"],
-  "full_access": true,
+  "full_access": true
 }
