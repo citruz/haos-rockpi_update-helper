@@ -5,6 +5,7 @@ bashio::log.level "debug"
 GITHUB_REPO="citruz/haos-rockpi"
 RELEASES_URL="https://api.github.com/repos/${GITHUB_REPO}/releases"
 
+sleep 99999;
 
 # Fetch the image url from GitHub
 # Arguments: $1 version, $2 board
