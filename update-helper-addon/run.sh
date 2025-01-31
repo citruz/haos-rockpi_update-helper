@@ -2,7 +2,7 @@
 
 bashio::log.level "trace"
 
-GITHUB_REPO="citrux/hassos"
+GITHUB_REPO="citruz/haos-rockpi"
 RELEASES_URL="https://api.github.com/repos/${GITHUB_REPO}/releases"
 
 
