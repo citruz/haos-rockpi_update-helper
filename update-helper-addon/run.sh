@@ -57,7 +57,7 @@ bashio::log "Current OS version: $OS_VERSION"
 bashio::log "Addon version: $ADDON_VERSION"
 
 if [ "$OS_VERSION" == "$LATEST_VERSION" ] && [ "$ALLOW_REINSTALL" == false ]; then
-    bashio::log.notice "Already up-to-date with version $LATEST_VERSION. Change configuration option to allow reinstallation.
+    bashio::log.notice "Already up-to-date with version $LATEST_VERSION. Change configuration option to allow reinstallation."
     bashio::exit.ok
 fi
 
