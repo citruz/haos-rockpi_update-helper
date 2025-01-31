@@ -18,7 +18,7 @@ function fetch_image_url() {
     
     response=$(curl -s -f "$RELEASES_URL")
     if [ $? -ne 0 ]; then
-        bashio::log.debug "$resonse"
+        bashio::log.debug "$response"
         bashio::exit.nok "Error fetching releases from ${RELEASES_URL}"
     fi
 
