@@ -6,7 +6,7 @@
   "arch": ["amd64", "i386", "armhf", "armv7", "aarch64"],
   "startup": "once",
   "boot": "manual_only",
-  "url":"https://github.com/honsma235/haos-rockpi_update-helper/update-helper-addon",
+  "url":"https://github.com/honsma235/haos-rockpi_update-helper",
   "apparmor": "false",
   "init": false,
   "ingress": "false",
