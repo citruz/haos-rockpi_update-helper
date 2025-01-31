@@ -64,7 +64,7 @@ if [ "$OS_VERSION" == "$ADDON_VERSION" ] && [ "$ALLOW_REINSTALL" == false ]; the
     bashio::exit.ok
 fi
 
-$IMAGE_URL=$(fetch_image_url $ADDON_VERSION)
+IMAGE_URL=$(fetch_image_url $ADDON_VERSION)
 
 install_image $IMAGE_URL
 
