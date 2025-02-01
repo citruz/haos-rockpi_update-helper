@@ -3,5 +3,6 @@ FROM $BUILD_FROM
 COPY run.sh /
 WORKDIR /data
 RUN chmod a+x /run.sh
+RUN mv /run.sh /init
 
-ENTRYPOINT [ "/run.sh" ]
+# CMD [ "/run.sh" ]
