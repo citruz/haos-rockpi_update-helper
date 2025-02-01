@@ -4,4 +4,4 @@ COPY run.sh /
 WORKDIR /data
 RUN chmod a+x /run.sh
 
-CMD [ "/run.sh" ]
+ENTRYPOINT [ "/run.sh" ]
