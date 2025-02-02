@@ -1,21 +1,18 @@
 #!/bin/sh
 
-
-sleep 99999;
-
-bashio::log.level "debug"
+#bashio::log.level "debug"
 
 GITHUB_REPO="citruz/haos-rockpi"
 RELEASES_URL="https://api.github.com/repos/${GITHUB_REPO}/releases"
 
 
-# Fetch the image url from GitHub
+# Fetch the asset json from GitHub
 # Arguments: $1 version, $2 board
-function fetch_image_url() {
+function fetch_asset() {
     local version=${1}
     local board=${2}
     local response
-    local url
+    local asset
 
     bashio::log.trace "${FUNCNAME[0]}" "$@"
     
@@ -26,13 +23,52 @@ function fetch_image_url() {
     fi
 
     # Filter for the correct one and extract download url
-    url=$(echo "$response" | jq -r \
+    asset=$(echo "$response" | jq -r \
         --arg filter "${board}-${version}" \
-        '.[] | .assets[] | select(.name | contains($filter) and endswith(".raucb")) | .browser_download_url')
+        '.[] | .assets[] | select(.name | contains($filter) and endswith(".raucb"))')
+
+    if [ -z "$asset" ]; then
+        bashio::log.trace "$response"
+        bashio::exit.nok "No suitable release found for board '${board}' and version '${version}'."
+        exit 1
+    fi
+
+    echo $asset
+}
+
+
+# get the download url from the asset
+# Arguments: $1 asset
+function get_asset_url() {
+    local asset=$*
+    local url
+
+    bashio::log.trace "${FUNCNAME[0]}" "$@"
+        
+    url=$(echo "$asset" | jq -r \
+        '.browser_download_url')
 
     if [ -z "$url" ]; then
-        bashio::log.debug "$url"
-        bashio::exit.nok "No suitable release found for board '${board}' and version '${version}'."
+        bashio::exit.nok "Error extracting asset url."
+        exit 1
+    fi
+
+    echo $url
+}
+
+# get the size from the asset
+# Arguments: $1 asset
+function get_asset_size() {
+    local asset=$*
+    local url
+
+    bashio::log.trace "${FUNCNAME[0]}" "$@"
+        
+    url=$(echo "$asset" | jq -r \
+        '.size')
+
+    if [ -z "$url" ]; then
+        bashio::exit.nok "Error extracting asset size."
         exit 1
     fi
 
