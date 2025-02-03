@@ -120,7 +120,7 @@ function unmount_and_make_loop() {
     bashio::log.trace "${FUNCNAME[0]}" "$@"
     
     umount "${TMP_MOUNT}"
-    losetup -r -f "${TMP_IMG}"
+    losetup -f "${TMP_IMG}"
 }
 
 # Get user options
