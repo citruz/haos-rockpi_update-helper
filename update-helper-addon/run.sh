@@ -1,6 +1,6 @@
 #!/usr/bin/env bashio
 
-#bashio::log.level "debug"
+bashio::log.level "debug"
 
 GITHUB_REPO="citruz/haos-rockpi"
 RELEASES_URL="https://api.github.com/repos/${GITHUB_REPO}/releases"
