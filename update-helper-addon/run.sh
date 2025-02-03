@@ -1,5 +1,7 @@
 #!/usr/bin/with-contenv bashio
 
+set +e
+
 bashio::log.level "debug"
 
 GITHUB_REPO="citruz/haos-rockpi"
