@@ -144,4 +144,6 @@ IMAGE_SIZE=$(get_asset_size "${ASSET}") # in Byte
 create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 ))
 download_image "${IMAGE_URL}"
 unmount_and_make_loop
-bashio::os.config_sync
+
+sleep 99999
+#bashio::os.config_sync
