@@ -143,7 +143,18 @@ ASSET=$(fetch_asset "${ADDON_VERSION}" "${BOARD}")
 IMAGE_URL=$(get_asset_url "${ASSET}")
 IMAGE_SIZE=$(get_asset_size "${ASSET}") # in Byte
 
+echo "${IMAGE_SIZE} byte"
+echo "$(( (IMAGE_SIZE/(1024*1024)))) MB"
+echo "$(( (IMAGE_SIZE/(1024*1024))+1)) MB"
+
+
 create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 ))
+
+df -B 1 /tmp/tmp
+df -m /tmp/tmp
+
+sleep 99999
+
 download_image "${IMAGE_URL}"
 unmount_and_make_loop
 
