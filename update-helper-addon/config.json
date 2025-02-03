@@ -11,7 +11,7 @@
   "init": false,
   "ingress": false,
   "stage": "experimental",
-  "hassio_api" = true,
+  "hassio_api": true,
   "privileged": ["SYS_ADMIN"],
   "full_access": true
 }
