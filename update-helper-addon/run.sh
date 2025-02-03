@@ -84,11 +84,11 @@ function create_tmp_image_and_mount() {
     bashio::log.trace "${FUNCNAME[0]}" "$@"
     
     free=$(df -Pm /tmp | awk 'NR==2{print $4}')
-    if ((size + 4 > free)); then
+    if ((size + 7 > free)); then
         bashio::exit.nok "Error: not enough free space (${free}MB) to download update (${size}MB)."
     fi
     
-    dd if=/dev/zero of="${TMP_IMG}" bs=1M count=$((size+1))  > /dev/null 2>&1
+    dd if=/dev/zero of="${TMP_IMG}" bs=1M count=$((size+5))  > /dev/null 2>&1
     mkfs.vfat -n CONFIG "${TMP_IMG}"
     mkdir -p "${TMP_MOUNT}"
     mount -t auto -o loop "${TMP_IMG}" "${TMP_MOUNT}"
