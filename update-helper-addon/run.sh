@@ -1,5 +1,5 @@
 #!/bin/sh
-
+sleep 99999
 #bashio::log.level "debug"
 
 GITHUB_REPO="citruz/haos-rockpi"
