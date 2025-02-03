@@ -1,10 +1,12 @@
-#!/bin/sh
-sleep 99999
+#!/usr/bin/env bashio
+
 #bashio::log.level "debug"
 
 GITHUB_REPO="citruz/haos-rockpi"
 RELEASES_URL="https://api.github.com/repos/${GITHUB_REPO}/releases"
 
+TMP_IMG="/tmp/tmp.img" 
+TMP_MOUNT="/tmp/tmp" 
 
 # Fetch the asset json from GitHub
 # Arguments: $1 version, $2 board
@@ -30,7 +32,6 @@ function fetch_asset() {
     if [ -z "$asset" ]; then
         bashio::log.trace "$response"
         bashio::exit.nok "No suitable release found for board '${board}' and version '${version}'."
-        exit 1
     fi
 
     echo $asset
@@ -50,7 +51,6 @@ function get_asset_url() {
 
     if [ -z "$url" ]; then
         bashio::exit.nok "Error extracting asset url."
-        exit 1
     fi
 
     echo $url
@@ -69,28 +69,55 @@ function get_asset_size() {
 
     if [ -z "$url" ]; then
         bashio::exit.nok "Error extracting asset size."
-        exit 1
     fi
 
     echo $url
 }
 
-# Install rauc bundle from url
+# Create a temp image with appropriate size and mount
+# Arguments: $1 size in Megabyte
+function create_tmp_image_and_mount() {
+    local size=${1}
+    local free
+
+    bashio::log.trace "${FUNCNAME[0]}" "$@"
+    
+    free=$(df -Pm /tmp | awk 'NR==2{print $4}')
+    if ((size + 4 > free)); then
+        bashio::exit.nok "Error: not enought free space (${free}MB) to download update (${size}MB)."
+    fi
+    
+    dd if=/dev/zero of=${TMP_IMG} bs=1M count=$((size+1))  > /dev/null 2>&1
+    mkfs.vfat -n CONFIG ${TMP_IMG}
+    mkdir -p ${TMP_MOUNT}
+    mount -t auto -o loop ${TMP_IMG} ${TMP_MOUNT}
+}
+
+# download rauc bundle from url and save in image
 # Arguments: $1 url
-function install_image() {
+function download_image() {
     local url=$*
 
     bashio::log.trace "${FUNCNAME[0]}" "$@"
     
-    bashio::log "Installing from ${url}"
-    rauc install "$url"
+    bashio::log "Download from ${url}"
+    wget -T 20 -P ${TMP_MOUNT} "$url"
     if [ $? -eq 0 ]; then
-        bashio::log "Installation completed successfully."
+        bashio::log "Download completed successfully."
     else
-        bashio::exit.nok "Error during installation."
+        umount ${TMP_MOUNT}
+        rm ${TMP_IMG}
+        bashio::exit.nok "Error during Download."
     fi
 }
 
+# Unmount and make loop
+function unmount_and_make_loop() {
+    bashio::log.trace "${FUNCNAME[0]}" "$@"
+    
+    umount ${TMP_MOUNT}
+    losetup -r -f ${TMP_IMG}
+}
 
 # Get user options
 ALLOW_REINSTALL=$(bashio::config 'allow_reinstall')
@@ -111,11 +138,12 @@ if [ "$OS_VERSION" == "$ADDON_VERSION" ] && [ "$ALLOW_REINSTALL" == false ]; the
     bashio::exit.ok
 fi
 
-IMAGE_URL=$(fetch_image_url $ADDON_VERSION $BOARD)
+ASSET=$(fetch_asset "$ADDON_VERSION" "$BOARD")
+IMAGE_URL=$(get_asset_url "$ASSET")
+IMAGE_SIZE=$(get_asset_size "$ASSET") # in Byte
 
-install_image $IMAGE_URL
-
-bashio::log "Rebooting now..."
-bashio::host.reboot
-bashio::addon.stop
+create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 ))
+download_image $IMAGE_URL
+unmount_and_make_loop
+bashio::os.config_sync
 
