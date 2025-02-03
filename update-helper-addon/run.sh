@@ -92,6 +92,9 @@ function create_tmp_image_and_mount() {
     mkfs.vfat -n CONFIG "${TMP_IMG}"
     mkdir -p "${TMP_MOUNT}"
     mount -t auto -o loop "${TMP_IMG}" "${TMP_MOUNT}"
+
+    bashio::log.debug "Created image with size: $(df -Pm "${TMP_MOUNT}" | awk 'NR==2{print $4}')M"
+    
 }
 
 # download rauc bundle from url and save in image
