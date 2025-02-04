@@ -123,8 +123,15 @@ function unmount_and_make_loop() {
     losetup -f "${TMP_IMG}"
 }
 
-# Get user options
-ALLOW_REINSTALL=$(bashio::config 'allow_reinstall')
+# Unmount and make loop
+function preserve_authorized_keys() {
+    bashio::log.trace "${FUNCNAME[0]}" "$@"
+
+    mkdir -p /tmp/hassos-overlay
+    mount /dev/disk/by-label/hassos-overlay /tmp/hassos-overlay
+    cp /tmp/hassos-overlay/root/.ssh/authorized_keys "${TMP_MOUNT}"
+    umount /tmp/hassos-overlay
+}
 
 # Get system info
 BOARD=$(bashio::os.board)
@@ -137,8 +144,13 @@ bashio::log "Current board: ${BOARD}"
 bashio::log "Current OS version: ${OS_VERSION}"
 bashio::log "Addon version: ${ADDON_VERSION}"
 
-if [ "${OS_VERSION}" == "${ADDON_VERSION}" ] && [ "${ALLOW_REINSTALL}" == false ]; then
-    bashio::log.notice "Already up-to-date with version ${ADDON_VERSION}. Change configuration option to allow reinstallation."
+if [ "${OS_VERSION}" == "${ADDON_VERSION}" ] && bashio::config.false 'allow_reinstall'; then
+    bashio::log.notice "OS already up-to-date with version ${ADDON_VERSION}. Change configuration option to allow reinstallation."
+    bashio::exit.ok
+fi
+
+if printf ! '${OS_VERSION}\n${ADDON_VERSION}\n' | sort -V -c > /dev/null 2>&1 bashio::config.false 'allow_downgrade'; then
+    bashio::log.notice "Current OS version newer then ${ADDON_VERSION}. Change configuration option to allow downgrade."
     bashio::exit.ok
 fi
 
@@ -146,12 +158,14 @@ ASSET=$(fetch_asset "${ADDON_VERSION}" "${BOARD}")
 IMAGE_URL=$(get_asset_url "${ASSET}")
 IMAGE_SIZE=$(get_asset_size "${ASSET}") # in Byte
 
-ls -la /tmp
 
 create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 )) # crude round up -> add 1 MByte
 
 download_image "${IMAGE_URL}"
+bashio::config.true 'preserve_authorized_keys' && preserve_authorized_keys
+
 unmount_and_make_loop
+
 
 sleep 99999
 #bashio::os.config_sync
