@@ -166,6 +166,4 @@ bashio::config.true 'preserve_authorized_keys' && preserve_authorized_keys
 
 unmount_and_make_loop
 
-
-sleep 99999
-#bashio::os.config_sync
+bashio::os.config_sync
