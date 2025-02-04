@@ -85,15 +85,16 @@ function create_tmp_image_and_mount() {
     
     free=$(df -Pm /tmp | awk 'NR==2{print $4}')
     if ((size + 7 > free)); then
-        bashio::exit.nok "Error: not enough free space (${free}MB) to download update (${size}MB)."
+        bashio::exit.nok "Error: not enough free space (${free}MB) to download update (${size}MB). Some additional space is needed to create a virtual disk."
     fi
-    
+
+    # The overhead of the VFAT filesystem ist about 3 MByte
     dd if=/dev/zero of="${TMP_IMG}" bs=1M count=$((size+5))  > /dev/null 2>&1
     mkfs.vfat -n CONFIG "${TMP_IMG}"
     mkdir -p "${TMP_MOUNT}"
     mount -t auto -o loop "${TMP_IMG}" "${TMP_MOUNT}"
 
-    bashio::log.debug "Created image with size: $(df -Pm "${TMP_MOUNT}" | awk 'NR==2{print $4}')M"
+    bashio::log "Prepared image with size: $(df -Pm "${TMP_MOUNT}" | awk 'NR==2{print $4}')M"
     
 }
 
@@ -109,8 +110,7 @@ function download_image() {
     if [ $? -eq 0 ]; then
         bashio::log "Download completed successfully."
     else
-        umount "${TMP_MOUNT}"
-        rm "${TMP_IMG}"
+        umount "${TMP_MOUNT}" && rm "${TMP_IMG}"
         bashio::exit.nok "Error during Download."
     fi
 }
@@ -146,7 +146,9 @@ ASSET=$(fetch_asset "${ADDON_VERSION}" "${BOARD}")
 IMAGE_URL=$(get_asset_url "${ASSET}")
 IMAGE_SIZE=$(get_asset_size "${ASSET}") # in Byte
 
-create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 ))
+ls -la /tmp
+
+create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 )) # crude round up -> add 1 MByte
 
 download_image "${IMAGE_URL}"
 unmount_and_make_loop
