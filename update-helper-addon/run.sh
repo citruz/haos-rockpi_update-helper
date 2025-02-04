@@ -145,12 +145,12 @@ bashio::log "Current OS version: ${OS_VERSION}"
 bashio::log "Addon version: ${ADDON_VERSION}"
 
 if [ "${OS_VERSION}" == "${ADDON_VERSION}" ] && bashio::config.false 'allow_reinstall'; then
-    bashio::log.notice "OS already up-to-date with version ${ADDON_VERSION}. Change configuration option to allow reinstallation."
+    bashio::log.notice "OS already up-to-date with version ${ADDON_VERSION}. Change configuration option to allow reinstallation, save and restart."
     bashio::exit.ok
 fi
 
 if ! printf '${OS_VERSION}\n${ADDON_VERSION}\n' | sort -V -c > /dev/null 2>&1 && bashio::config.false 'allow_downgrade'; then
-    bashio::log.notice "Current OS version newer then ${ADDON_VERSION}. Change configuration option to allow downgrade."
+    bashio::log.notice "Current OS version newer then ${ADDON_VERSION}. Change configuration option to allow downgrade, save and restart."
     bashio::exit.ok
 fi
 
