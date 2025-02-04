@@ -149,7 +149,7 @@ if [ "${OS_VERSION}" == "${ADDON_VERSION}" ] && bashio::config.false 'allow_rein
     bashio::exit.ok
 fi
 
-if ! printf '${OS_VERSION}\n${ADDON_VERSION}\n' | sort -V -c > /dev/null 2>&1 bashio::config.false 'allow_downgrade'; then
+if ! printf '${OS_VERSION}\n${ADDON_VERSION}\n' | sort -V -c > /dev/null 2>&1 && bashio::config.false 'allow_downgrade'; then
     bashio::log.notice "Current OS version newer then ${ADDON_VERSION}. Change configuration option to allow downgrade."
     bashio::exit.ok
 fi
