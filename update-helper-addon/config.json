@@ -1,6 +1,6 @@
 {
   "name": "HaOS RockPi 4 - Update Helper",
-  "version": "14.1.dev202",
+  "version": "14.1.dev20",
   "slug": "haos_rockpi_update_helper_addon",
   "description": "This simplifies updating Home Assistant OS for Rock Pi 4.",
   "arch": ["amd64", "i386", "armhf", "armv7", "aarch64"],
@@ -14,5 +14,15 @@
   "hassio_api": true,
   "hassio_role": "manager",
   "privileged": ["SYS_ADMIN"],
-  "full_access": true
+  "full_access": true,
+  "options": {
+    "allow_reinstallation": false,
+    "allow_downgrade": false,
+    "preserve_authorized_keys": true
+  },
+  "schema": {
+    "allow_reinstallation": "bool",
+    "allow_downgrade": "bool",
+    "preserve_authorized_keys": "bool"
+  }
 }
