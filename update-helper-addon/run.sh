@@ -92,7 +92,7 @@ function create_tmp_image_and_mount() {
     mkdir -p "${TMP_MOUNT}"
     mount -t auto -o loop "${TMP_IMG}" "${TMP_MOUNT}"
 
-    if ! findmnt --target "${TMP_MOUNT}"; then
+    if ! findmnt --target "${TMP_MOUNT}" > /dev/null 2>&1; then
         bashio::exit.nok "Error: could not create virtual disk."
     fi
 
