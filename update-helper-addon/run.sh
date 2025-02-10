@@ -130,11 +130,14 @@ function preserve_authorized_keys() {
     bashio::log.trace "${FUNCNAME[0]}" "$@"
 
     mkdir -p /tmp/hassos-overlay
-    mount /dev/disk/by-label/hassos-overlay /tmp/hassos-overlay
+    mount -o norecovery,noatime /dev/disk/by-label/hassos-overlay /tmp/hassos-overlay
     if [ $? -ne 0 ]; then
-        bashio::exit.nok "Error mounting overlay filesystem. Can not preserve 'authorized_keys'."
+        bashio::exit.nok "Error mounting overlay filesystem. Can not preserve 'authorized_keys'. If you dont have ssh access enabled"
     fi
     cp /tmp/hassos-overlay/root/.ssh/authorized_keys "${TMP_MOUNT}"
+    if [ $? -ne 0 ]; then
+        bashio::log.notice "No 'authorized_keys' file found, skipping..."
+    fi
     umount /tmp/hassos-overlay
 }
 
@@ -178,10 +181,7 @@ ASSET=$(fetch_asset "${ADDON_VERSION}" "${BOARD}")
 IMAGE_URL=$(get_asset_url "${ASSET}")
 IMAGE_SIZE=$(get_asset_size "${ASSET}") # in Byte
 
-
-sleep 99999
 create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 )) # crude round up -> add 1 MByte
-
 
 download_image "${IMAGE_URL}"
 bashio::config.true 'preserve_authorized_keys' && preserve_authorized_keys
