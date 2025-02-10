@@ -135,12 +135,16 @@ function preserve_authorized_keys() {
 # Main script
 
 if bashio::config.has_value "debug"; then
-    bashio::log.level bashio::config "debug"
+    LOGLEVEL=$(bashio::config "debug")
+    bashio::log.level LOGLEVEL
+    bashio::log "Log level set to ${LOGLEVEL}"
 fi
 
 # Check if the add-on is running in protected mode
 if bashio::addon.protected; then
-    bashio::log.notice "Add-on is running in protection mode. Please disable 'Protection mode' in the 'Info' tab of this add-on."
+    bashio::log.warning
+    bashio::log.warning "Add-on is running in protection mode. Please disable 'Protection mode' in the 'Info' tab of this add-on."
+    bashio::log.warning
     bashio::exit.ok
 fi
 
@@ -154,9 +158,14 @@ bashio::log "Current OS version: ${OS_VERSION}"
 bashio::log "Add-on version: ${ADDON_VERSION}"
 
 if printf "${OS_VERSION}\n${ADDON_VERSION}\n" | sort -V -c > /dev/null 2>&1 && bashio::config.true 'upgrade_only'; then
-    bashio::log.notice "Current OS version newer or same then add-on version. Please change add-on configuration option 'upgrade_only' to continue."
+    bashio::log.warning
+    bashio::log.warning "Current OS version newer or same then add-on version. Please change add-on configuration option 'upgrade_only' to continue."
+    bashio::log.warning
     bashio::exit.ok
 fi
+
+# reset configuration option to upgrade only
+bashio::addon.option 'upgrade_only' true
 
 ASSET=$(fetch_asset "${ADDON_VERSION}" "${BOARD}")
 IMAGE_URL=$(get_asset_url "${ASSET}")
