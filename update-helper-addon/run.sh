@@ -92,6 +92,10 @@ function create_tmp_image_and_mount() {
     mkdir -p "${TMP_MOUNT}"
     mount -t auto -o loop "${TMP_IMG}" "${TMP_MOUNT}"
 
+    if ! findmnt --target "${TMP_MOUNT}"; then
+        bashio::exit.nok "Error: could not create virtual disk."
+    fi
+
     bashio::log "Prepared image with size: $(df -Pm "${TMP_MOUNT}" | awk 'NR==2{print $4}')M"
     
 }
@@ -108,7 +112,7 @@ function download_image() {
     if [ $? -eq 0 ]; then
         bashio::log "Download completed successfully."
     else
-        umount "${TMP_MOUNT}" && rm "${TMP_IMG}"
+        umount "${TMP_MOUNT}"
         bashio::exit.nok "Error during Download."
     fi
 }
@@ -121,12 +125,15 @@ function unmount_and_make_loop() {
     losetup -f "${TMP_IMG}"
 }
 
-# Unmount and make loop
+# Mount overlay filesystem and copy 'authorized_keys' to virtual disk
 function preserve_authorized_keys() {
     bashio::log.trace "${FUNCNAME[0]}" "$@"
 
     mkdir -p /tmp/hassos-overlay
     mount /dev/disk/by-label/hassos-overlay /tmp/hassos-overlay
+    if [ $? -ne 0 ]; then
+        bashio::exit.nok "Error mounting overlay filesystem. Can not preserve 'authorized_keys'."
+    fi
     cp /tmp/hassos-overlay/root/.ssh/authorized_keys "${TMP_MOUNT}"
     umount /tmp/hassos-overlay
 }
@@ -173,6 +180,8 @@ IMAGE_SIZE=$(get_asset_size "${ASSET}") # in Byte
 
 
 create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 )) # crude round up -> add 1 MByte
+
+sleep 99999
 
 download_image "${IMAGE_URL}"
 bashio::config.true 'preserve_authorized_keys' && preserve_authorized_keys
