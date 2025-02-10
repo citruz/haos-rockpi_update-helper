@@ -136,7 +136,7 @@ function preserve_authorized_keys() {
 
 if bashio::config.has_value "loglevel"; then
     LOGLEVEL=$(bashio::config "loglevel")
-    bashio::log.level LOGLEVEL
+    bashio::log.level ${LOGLEVEL}
     bashio::log "Log level set to '${LOGLEVEL}'"
 fi
 
