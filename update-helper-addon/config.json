@@ -17,12 +17,11 @@
   "full_access": true,
   "options": {
     "upgrade_only": true,
-    "preserve_authorized_keys": true,
-    "loglevel":
+    "preserve_authorized_keys": true
   },
   "schema": {
     "upgrade_only": "bool",
     "preserve_authorized_keys": "bool",
-    "loglevel": "list(undefined|debug|trace)?"
+    "loglevel": "list(debug|trace)?"
   }
 }
