@@ -141,7 +141,7 @@ if bashio::config.has_value "loglevel"; then
 fi
 
 # Check if the add-on is running in protected mode
-if bashio::addon.protected; then
+if $(bashio::addon.protected) == "true"; then
     bashio::log.warning
     bashio::log.warning "Add-on is running in protection mode. Please disable 'Protection mode' in the 'Info' tab of this add-on."
     bashio::log.warning
