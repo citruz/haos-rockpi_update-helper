@@ -132,7 +132,7 @@ function preserve_authorized_keys() {
     mkdir -p /tmp/hassos-overlay
     mount -o norecovery,noatime /dev/disk/by-label/hassos-overlay /tmp/hassos-overlay
     if [ $? -ne 0 ]; then
-        bashio::exit.nok "Error mounting overlay filesystem. Can not preserve 'authorized_keys'. If you dont have ssh access enabled"
+        bashio::exit.nok "Error mounting overlay filesystem. Can not preserve 'authorized_keys'. If you dont have ssh access enabled, try disabling configuration option 'preserve_authorized_keys'."
     fi
     cp /tmp/hassos-overlay/root/.ssh/authorized_keys "${TMP_MOUNT}"
     if [ $? -ne 0 ]; then
