@@ -179,9 +179,9 @@ IMAGE_URL=$(get_asset_url "${ASSET}")
 IMAGE_SIZE=$(get_asset_size "${ASSET}") # in Byte
 
 
+sleep 99999
 create_tmp_image_and_mount $(( (IMAGE_SIZE/(1024*1024)) + 1 )) # crude round up -> add 1 MByte
 
-sleep 99999
 
 download_image "${IMAGE_URL}"
 bashio::config.true 'preserve_authorized_keys' && preserve_authorized_keys
