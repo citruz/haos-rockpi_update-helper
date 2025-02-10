@@ -23,6 +23,6 @@
   "schema": {
     "upgrade_only": "bool",
     "preserve_authorized_keys": "bool",
-    "loglevel": "list(debug|trace)?"
+    "loglevel": "list(undefined|debug|trace)?"
   }
 }
