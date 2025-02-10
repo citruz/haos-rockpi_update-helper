@@ -2,8 +2,6 @@
 
 set +e
 
-#bashio::log.level "debug"
-
 GITHUB_REPO="citruz/haos-rockpi"
 RELEASES_URL="https://api.github.com/repos/${GITHUB_REPO}/releases"
 
@@ -133,24 +131,30 @@ function preserve_authorized_keys() {
     umount /tmp/hassos-overlay
 }
 
+############################
+# Main script
+
+if bashio::config.has_value "debug"; then
+    bashio::log.level bashio::config "debug"
+fi
+
+# Check if the add-on is running in protected mode
+if bashio::addon.protected; then
+    bashio::log.notice "Add-on is running in protection mode. Please disable 'Protection mode' in the 'Info' tab of this add-on."
+    bashio::exit.ok
+fi
+
 # Get system info
 BOARD=$(bashio::os.board)
 OS_VERSION=$(bashio::os.version)
 ADDON_VERSION=$(bashio::addon.version)
 
-# Main script
-
 bashio::log "Current board: ${BOARD}"
 bashio::log "Current OS version: ${OS_VERSION}"
-bashio::log "Addon version: ${ADDON_VERSION}"
+bashio::log "Add-on version: ${ADDON_VERSION}"
 
-if [ "${OS_VERSION}" == "${ADDON_VERSION}" ] && bashio::config.false 'allow_reinstall'; then
-    bashio::log.notice "OS already up-to-date with version ${ADDON_VERSION}. Change configuration option to allow reinstallation, save and restart."
-    bashio::exit.ok
-fi
-
-if ! printf "${OS_VERSION}\n${ADDON_VERSION}\n" | sort -V -c > /dev/null 2>&1 && bashio::config.false 'allow_downgrade'; then
-    bashio::log.notice "Current OS version newer then ${ADDON_VERSION}. Change configuration option to allow downgrade, save and restart."
+if printf "${OS_VERSION}\n${ADDON_VERSION}\n" | sort -V -c > /dev/null 2>&1 && bashio::config.true 'upgrade_only'; then
+    bashio::log.notice "Current OS version newer or same then add-on version. Please change add-on configuration option 'upgrade_only' to continue."
     bashio::exit.ok
 fi
 
