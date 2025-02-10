@@ -134,10 +134,10 @@ function preserve_authorized_keys() {
 ############################
 # Main script
 
-if bashio::config.has_value "debug"; then
-    LOGLEVEL=$(bashio::config "debug")
+if bashio::config.has_value "loglevel"; then
+    LOGLEVEL=$(bashio::config "loglevel")
     bashio::log.level LOGLEVEL
-    bashio::log "Log level set to ${LOGLEVEL}"
+    bashio::log "Log level set to '${LOGLEVEL}'"
 fi
 
 # Check if the add-on is running in protected mode
