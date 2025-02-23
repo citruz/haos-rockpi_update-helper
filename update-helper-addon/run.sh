@@ -167,7 +167,12 @@ bashio::log "Current board: ${BOARD}"
 bashio::log "Current OS version: ${OS_VERSION}"
 bashio::log "Add-on version: ${ADDON_VERSION}"
 
-if printf "${OS_VERSION}\n${ADDON_VERSION}\n" | sort -V -c > /dev/null 2>&1 && bashio::config.true 'upgrade_only'; then
+HAVE_UPDATE=0
+if [[ "${OS_VERSION}" != "${ADDON_VERSION}" ]] && printf "${OS_VERSION}\n${ADDON_VERSION}\n" | sort -V -c > /dev/null 2>&1; then
+    HAVE_UPDATE=1
+fi
+
+if [[ "$HAVE_UPDATE" == "0" ]] && bashio::config.true 'upgrade_only'; then
     bashio::log.warning
     bashio::log.warning "Current OS version newer or same then add-on version. Please change add-on configuration option 'upgrade_only' to continue."
     bashio::log.warning
